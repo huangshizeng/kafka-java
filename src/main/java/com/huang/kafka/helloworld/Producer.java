@@ -25,7 +25,7 @@ public class Producer {
         //acks=all：这个配置意味着leader会等待所有的follower同步完成。这个确保消息不会丢失，除非kafka集群中所有机器挂掉。这是最强的可用性保证
         props.put("acks", "all");
         //配置为大于0的值的话，客户端会在消息发送失败时重新发送
-        props.put("retries", 0);
+        props.put("retries", Integer.MAX_VALUE);
         //当多条消息需要发送到同一个分区时，生产者会尝试合并网络请求。这会提高client和生产者的效率
         props.put("batch.size", 16384);
         //键序列化
