@@ -15,7 +15,7 @@ public class Producer {
     private final KafkaProducer<String, String> producer;
     private static final String topic = "my-topic";
 
-    public Producer() {
+    private Producer() {
         Properties props = new Properties();
         //kafka的地址
         props.put("bootstrap.servers", "localhost:9092");
@@ -32,13 +32,13 @@ public class Producer {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         //值序列化
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        producer = new KafkaProducer<String, String>(props);
+        producer = new KafkaProducer<>(props);
     }
 
-    public void produce() {
+    private void produce() {
         for (int i = 0; i < 100; i++) {
             String message = "你好，这是第" + (i + 1) + "条数据";
-            ProducerRecord record = new ProducerRecord<>("my-topic", message);
+            ProducerRecord<String, String> record = new ProducerRecord<>(topic, message);
             producer.send(record, (metadata, exception) -> {
                 if (exception == null) {
                     System.out.println("消息：'" + metadata.toString() + "' 发送成功");
