@@ -6,7 +6,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -27,24 +27,30 @@ public class Consumer {
         props.put("group.id", "test");
         //是否自动提交，默认为true
         props.put("enable.auto.commit", "true");
-        //从poll(拉)的回话处理时长
+        //自动提交间隔
         props.put("auto.commit.interval.ms", "1000");
         //键序列化
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         //值序列化
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        consumer = new KafkaConsumer<String, String>(props);
+        consumer = new KafkaConsumer<>(props);
     }
 
     public void consume() {
         //订阅一个topic
-        consumer.subscribe(Arrays.asList(topic));
-        while (true) {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS));
-            for (ConsumerRecord<String, String> record : records) {
-                System.out.println("receive: key = " + record.key() + ", value = " + record.value() + ", offset===" + record.offset());
+        consumer.subscribe(Collections.singletonList(topic));
+        try {
+            while (true) {
+                //1000是等待超时时间
+                ConsumerRecords<String, String> records = consumer.poll(Duration.of(1000, ChronoUnit.MILLIS));
+                for (ConsumerRecord<String, String> record : records) {
+                    System.out.println("receive: key = " + record.key() + ", value = " + record.value() + ", offset===" + record.offset());
+                }
             }
+        } finally {
+            consumer.close();
         }
+
     }
 
     public static void main(String[] args) {

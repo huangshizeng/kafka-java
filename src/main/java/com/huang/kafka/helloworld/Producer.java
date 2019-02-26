@@ -15,7 +15,7 @@ public class Producer {
     private final KafkaProducer<String, String> producer;
     private static final String topic = "my-topic";
 
-    private Producer() {
+    public Producer() {
         Properties props = new Properties();
         //kafka的地址
         props.put("bootstrap.servers", "localhost:9092");
@@ -35,10 +35,11 @@ public class Producer {
         producer = new KafkaProducer<>(props);
     }
 
-    private void produce() {
+    public void produce() {
         for (int i = 0; i < 100; i++) {
             String message = "你好，这是第" + (i + 1) + "条数据";
             ProducerRecord<String, String> record = new ProducerRecord<>(topic, message);
+            //异步发送
             producer.send(record, (metadata, exception) -> {
                 if (exception == null) {
                     System.out.println("消息：'" + metadata.toString() + "' 发送成功");
@@ -50,6 +51,12 @@ public class Producer {
                     }
                 }
             });
+            //同步发送
+//            try {
+//                producer.send(record).get();
+//            } catch (InterruptedException | ExecutionException e) {
+//                e.printStackTrace();
+//            }
             System.out.println("发送的消息：" + message);
         }
         producer.close();
